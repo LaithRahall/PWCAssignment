@@ -1,0 +1,54 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Map";
+}
+<div>
+    <iframe id="map" width="1000" height="600" style="border:0" loading="lazy" allowfullscreen class="rounded"
+    src="https://www.google.com/maps/embed/v1/view?zoom=9&center=25.2048%2C55.2708&key=AIzaSyCbO9ncODLBwzEpg2nQbPcYQTfpMnb2aTs"></iframe>
+</div>
+
+<div>
+    <input type="text" id="city" value="" class="rounded">
+    <button id="btn" type="button" onclick="onSearch()" name="search" value="Search" class="rounded" style="background-color:dodgerblue;color:white;text-color">
+        Search
+    </button>
+</div>
+
+<div style="padding-top:10px">
+    <p id="error" class="invisible alert alert-danger"></p>
+</div>
+
+<script>
+    const errMsg = document.getElementById("error")
+    const load = document.getElementById("btn")
+    const str = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+    function onSearch(){
+        $.ajax({
+            method: 'GET',
+            url: 'https://api.api-ninjas.com/v1/geocoding?city=' + document.getElementById("city").value,
+            headers: { 'X-Api-Key': 'AQn8wSdc5iU/eQwynrdLrA==Z1O3q0WhVcapBuw8' },
+            contentType: 'application/json',
+            success: function(result) {
+                if(Array.isArray(result) && result.length > 0){
+                    document.getElementById("map")
+                    .setAttribute("src", `https://www.google.com/maps/embed/v1/view?zoom=9&center=${result[0].latitude}%2C${result[0].longitude}&key=AIzaSyCbO9ncODLBwzEpg2nQbPcYQTfpMnb2aTs`)
+                    errMsg.setAttribute("class", "invisible")
+                }
+                else {
+                    errMsg.innerText = "City Not Found"
+                    errMsg.setAttribute("class", "alert alert-danger visible;")
+                }
+                load.innerHTML = "Search"
+            },
+            error: function ajaxError(jqXHR) {
+                console.error('Error: ', jqXHR.responseText);
+                errMsg.innerText = "Enter a City"
+                errMsg.setAttribute("class", "alert alert-danger visible;")
+                load.innerHTML = "Search"
+            }
+            
+        });
+
+    }
+</script>
